@@ -1,10 +1,30 @@
 import { FiMonitor, FiPlayCircle } from 'react-icons/fi';
 
 const presentations = [
-  { title: 'Proposal Presentation', desc: 'Slides from the initial project proposal defense.', date: 'Feb 2025' },
-  { title: 'Progress Presentation 1', desc: 'Slides showing 50% completion and initial integrations.', date: 'May 2025' },
-  { title: 'Progress Presentation 2', desc: 'Slides showing 90% completion and system testing.', date: 'Aug 2025' },
-  { title: 'Final Presentation', desc: 'Comprehensive slide deck for final project evaluation.', date: 'Oct 2025' }
+  {
+    title: 'Proposal Presentation',
+    desc: 'Slides from the initial project proposal defense.',
+    date: 'Feb 2025',
+    link: 'PASTE_PROPOSAL_PRESENTATION_DRIVE_LINK_HERE'
+  },
+  {
+    title: 'Progress Presentation 1',
+    desc: 'Slides showing 50% completion and initial integrations.',
+    date: 'May 2025',
+    link: 'PASTE_PROGRESS_PRESENTATION_1_DRIVE_LINK_HERE'
+  },
+  {
+    title: 'Progress Presentation 2',
+    desc: 'Slides showing 90% completion and system testing.',
+    date: 'Aug 2025',
+    link: 'PASTE_PROGRESS_PRESENTATION_2_DRIVE_LINK_HERE'
+  },
+  {
+    title: 'Final Presentation',
+    desc: 'Comprehensive slide deck for final project evaluation.',
+    date: 'Oct 2025',
+    link: 'PASTE_FINAL_PRESENTATION_DRIVE_LINK_HERE'
+  }
 ];
 
 const Presentations = () => {
@@ -33,9 +53,14 @@ const Presentations = () => {
                   </span>
                 </div>
                 <p className="text-gray-500 text-sm mb-6 flex-grow">{pres.desc}</p>
-                <button className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-emerald-500 hover:text-emerald-600 transition-colors">
+                <a
+                  href={pres.link || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-emerald-500 hover:text-emerald-600 transition-colors text-center"
+                >
                   View Slides
-                </button>
+                </a>
               </div>
             </div>
           ))}

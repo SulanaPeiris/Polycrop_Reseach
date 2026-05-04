@@ -1,6 +1,80 @@
+import { useState } from 'react';
+import emailjs from '@emailjs/browser';
 import { FiMapPin, FiMail, FiSend } from 'react-icons/fi';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+  const [status, setStatus] = useState({ type: '', message: '' });
+  const [isSending, setIsSending] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const ownerEmail = import.meta.env.VITE_CONTACT_OWNER_EMAIL;
+
+    if (!serviceId || !templateId || !publicKey || !ownerEmail) {
+      setStatus({
+        type: 'error',
+        message: 'Email service is not configured yet. Please add the required environment variables.',
+      });
+      return;
+    }
+
+    setIsSending(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          reply_to: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          to_email: ownerEmail,
+        },
+        publicKey,
+      );
+
+      setStatus({
+        type: 'success',
+        message: 'Your message has been sent successfully.',
+      });
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    } catch (error) {
+      setStatus({
+        type: 'error',
+        message: 'Unable to send your message right now. Please try again later.',
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <div className="py-24 bg-slate-50 min-h-screen font-poppins">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,11 +121,15 @@ const Contact = () => {
           {/* Contact Form */}
           <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Send a Message</h2>
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
                 <input 
                   type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                   placeholder="John Doe"
                 />
@@ -61,6 +139,10 @@ const Contact = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                 <input 
                   type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                   placeholder="john@example.com"
                 />
@@ -70,6 +152,10 @@ const Contact = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
                 <input 
                   type="text" 
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                   placeholder="Inquiry about research"
                 />
@@ -79,16 +165,30 @@ const Contact = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
                 <textarea 
                   rows="4" 
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
                   placeholder="How can we help you?"
                 ></textarea>
               </div>
 
+              {status.message ? (
+                <p
+                  className={`text-sm font-medium ${status.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}
+                  role="status"
+                >
+                  {status.message}
+                </p>
+              ) : null}
+
               <button 
                 type="submit" 
-                className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-colors"
+                disabled={isSending}
+                className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <FiSend /> Send Message
+                <FiSend /> {isSending ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>
